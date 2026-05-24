@@ -606,33 +606,28 @@ export default function Home() {
   const processFiles = (files) => {
     if (!files.length) return;
 
-    setImages(prev => {
-      // 최대 5장 제한 확인
-      if (prev.length + files.length > 5) {
-        alert("이미지는 최대 5장까지만 업로드 가능합니다.");
-        return prev;
-      }
+    const validFiles = files.filter(file => file.type.startsWith('image/'));
+    if (!validFiles.length) return;
 
-      const newImages = [...prev];
-      files.forEach(file => {
-        if (!file.type.startsWith('image/')) return;
-        
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImages(current => {
-            // 중복 실행 방지 및 순서 보장을 위해 functional update 내에서 처리
-            // 실제 데이터는 비동기로 들어가므로 주의 필요하지만, 여기서는 간단히 구현
-            return [...current, {
-              file,
-              preview: URL.createObjectURL(file),
-              base64: reader.result.split(',')[1],
-              mimeType: file.type
-            }];
-          });
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newImg = {
+          file,
+          preview: URL.createObjectURL(file),
+          base64: reader.result.split(',')[1],
+          mimeType: file.type
         };
-        reader.readAsDataURL(file);
-      });
-      return prev; // 실제 업데이트는 reader.onloadend 내부의 setImages에서 일어남
+
+        setImages(current => {
+          if (current.length >= 5) {
+            alert("이미지는 최대 5장까지만 업로드 가능합니다.");
+            return current;
+          }
+          return [...current, newImg];
+        });
+      };
+      reader.readAsDataURL(file);
     });
   };
 
