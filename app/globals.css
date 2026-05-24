@@ -3,23 +3,57 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #070c18;
-  --bg-secondary: #0d1424;
-  --bg-card: rgba(13, 20, 36, 0.8);
-  --accent-cyan: #00e5ff;
-  --accent-teal: #00bcd4;
-  --accent-blue: #1565c0;
-  --text-primary: #e8f4fd;
-  --text-secondary: #90caf9;
-  --text-muted: #546e7a;
-  --border-color: rgba(0, 229, 255, 0.15);
-  --glow-cyan: 0 0 20px rgba(0, 229, 255, 0.3);
+  /* LIGHT MODE - WARM BEIGE PALETTE */
+  --bg-primary: #fff2e1;
+  --bg-secondary: #ead8c0;
+  --bg-card: #fffcf8;
+  
+  --accent-cyan: #a79277;
+  --accent-teal: #d1bb9e;
+  --accent-primary: #a79277; /* Taupe for buttons */
+  --accent-secondary: #c97a5e; /* Warm rust/orange for urgency */
+  --accent-green: #7d8b6b; /* Warm muted green */
+  
+  --text-primary: #1f1610; /* Very dark espresso for maximum contrast */
+  --text-secondary: #3b2f23;
+  --text-muted: #5e4c3b; /* Darker taupe for better readability */
+  
+  --border-color: #a79277;
+  --glow-cyan: none;
+  --card-shadow: 4px 4px 0px 0px rgba(167, 146, 119, 0.5); /* Taupe shadow */
+  --transition-speed: 0.2s;
+  
+  --radius-sm: 4px; /* Slightly softer than brutalist pure 0 */
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+.dark {
+  /* DARK MODE - WARM ESPRESSO PALETTE */
+  --bg-primary: #2c241b;
+  --bg-secondary: #3d3227;
+  --bg-card: #352b22;
+  
+  --accent-cyan: #d1bb9e;
+  --accent-teal: #ead8c0;
+  --accent-primary: #d1bb9e; /* Light beige for buttons */
+  --accent-secondary: #e28a6b; /* Warm rust */
+  --accent-green: #9fb088;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #f4eadc;
+  --text-muted: #d1bb9e;
+  
+  --border-color: #7a6855; /* Darker taupe */
+  --glow-cyan: none;
+  --card-shadow: none;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed);
 }
 
 html {
@@ -31,57 +65,160 @@ body {
   color: var(--text-primary);
   font-family: var(--font-noto), "Noto Sans KR", sans-serif;
   min-height: 100vh;
-  background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(0, 188, 212, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(21, 101, 192, 0.07) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(0, 229, 255, 0.04) 0%, transparent 50%);
+  /* Removed soft gradients for pure flat brutalism */
 }
 
-/* 글래스모피즘 카드 */
-.glass-card {
-  background: rgba(13, 20, 36, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 229, 255, 0.12);
-  border-radius: 16px;
+/* Sharp Card Style (Replacing Glass-card) */
+.sharp-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--card-shadow);
+}
+.dark .sharp-card {
+  border: 1px solid var(--border-color);
+  box-shadow: none;
 }
 
-.glass-card:hover {
-  border-color: rgba(0, 229, 255, 0.25);
-  box-shadow: 0 8px 32px rgba(0, 229, 255, 0.1);
-  transform: translateY(-2px);
-  transition: all 0.3s ease;
-}
-
-/* 로딩 스켈레톤 */
+/* 로딩 스켈레톤 (Sharp) */
 @keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
 }
-
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(0, 188, 212, 0.05) 25%,
-    rgba(0, 188, 212, 0.12) 50%,
-    rgba(0, 188, 212, 0.05) 75%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 1.8s infinite linear;
-  border-radius: 8px;
-}
-
-/* 펄스 그로우 효과 */
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
-  50% { box-shadow: 0 0 35px rgba(0, 229, 255, 0.5); }
-}
-
-.pulse-glow {
-  animation: pulseGlow 2.5s infinite;
+  background: var(--bg-secondary);
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
 }
 
 /* 진입 애니메이션 */
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.fade-in-left { animation: fadeInLeft 0.4s ease forwards; }
+.fade-in-right { animation: fadeInRight 0.4s ease forwards; }
+
+/* 텍스트 포커스 (그라디언트 제거) */
+.gradient-text {
+  color: var(--accent-primary);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* 스크롤바 */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 0;
+}
+
+/* 버튼 스타일 (Warm) */
+.btn-primary {
+  background: var(--accent-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dark .btn-primary {
+  color: #2c241b;
+  border: 1px solid var(--accent-primary);
+  box-shadow: 0 0 10px rgba(209, 187, 158, 0.2); /* Soft taupe glow */
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0px 0px rgba(167, 146, 119, 0.5);
+  background: #c2a787; /* slightly lighter taupe */
+}
+.dark .btn-primary:hover:not(:disabled) {
+  box-shadow: 0 0 15px rgba(209, 187, 158, 0.4);
+  background: #ead8c0;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0px 0px 0px 0px rgba(167, 146, 119, 0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+/* 텍스트에어리어 */
+.symptom-textarea {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: none; /* 고정 크기 유지 위해 리사이즈 금지 */
+}
+
+.symptom-textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: none; /* Focus ring 제거, 선명한 보더 유지 */
+}
+
+/* 결과 카드 진입 딜레이 */
+.result-card-1 { animation-delay: 0.05s; }
+.result-card-2 { animation-delay: 0.1s; }
+.result-card-3 { animation-delay: 0.15s; }
+.result-card-4 { animation-delay: 0.2s; }
+
+/* 태그 칩 (Sharp) */
+.symptom-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.symptom-tag:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+/* 경고 배너 */
+.disclaimer {
+  background: var(--bg-secondary);
+  border-left: 4px solid var(--accent-secondary);
+  border-radius: 0;
+}
+
+/* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -94,130 +231,20 @@ body {
 }
 
 .fade-in-up {
-  animation: fadeInUp 0.5s ease forwards;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* 그라디언트 텍스트 */
-.gradient-text {
-  background: linear-gradient(135deg, #00e5ff 0%, #00bcd4 50%, #1565c0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-/* 스크롤바 */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 229, 255, 0.3);
-  border-radius: 3px;
-}
-
-/* 버튼 기본 스타일 */
-.btn-primary {
-  background: linear-gradient(135deg, #00acc1, #0097a7);
-  color: white;
-  border: none;
-  padding: 14px 32px;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 188, 212, 0.4);
-  background: linear-gradient(135deg, #00bcd4, #0097a7);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* 텍스트에어리어 */
-.symptom-textarea {
-  background: rgba(7, 12, 24, 0.9);
-  border: 1.5px solid rgba(0, 229, 255, 0.2);
-  border-radius: 12px;
-  color: var(--text-primary);
-  font-family: var(--font-noto), sans-serif;
-  font-size: 1rem;
-  line-height: 1.7;
-  resize: vertical;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.symptom-textarea::placeholder {
-  color: var(--text-muted);
-}
-
-.symptom-textarea:focus {
-  outline: none;
-  border-color: rgba(0, 229, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.08);
-}
-
-/* 결과 카드 진입 딜레이 */
-.result-card-1 { animation-delay: 0.1s; }
-.result-card-2 { animation-delay: 0.2s; }
-.result-card-3 { animation-delay: 0.3s; }
-.result-card-4 { animation-delay: 0.4s; }
-
-/* 태그 칩 */
-.symptom-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 14px;
-  background: rgba(0, 188, 212, 0.1);
-  border: 1px solid rgba(0, 188, 212, 0.25);
-  border-radius: 20px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.symptom-tag:hover {
-  background: rgba(0, 188, 212, 0.2);
-  border-color: rgba(0, 229, 255, 0.4);
-  color: var(--accent-cyan);
-}
-
-/* 진행 도트 애니메이션 */
-@keyframes bounce {
-  0%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-8px); }
-}
-
-.dot-1 { animation: bounce 1.4s infinite; }
-.dot-2 { animation: bounce 1.4s infinite 0.2s; }
-.dot-3 { animation: bounce 1.4s infinite 0.4s; }
-
-/* 메디컬 크로스 아이콘 */
-.medical-cross {
-  position: relative;
-  width: 32px;
-  height: 32px;
-}
-
-/* 경고 배너 */
-.disclaimer {
-  background: rgba(255, 152, 0, 0.08);
-  border: 1px solid rgba(255, 152, 0, 0.2);
-  border-radius: 10px;
+.fade-in-right {
+  animation: fadeInRight 0.5s ease-out forwards;
 }

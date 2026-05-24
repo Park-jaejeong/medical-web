@@ -24,3 +24,7 @@ yarn-error.log*
 .DS_Store
 *.pem
 .vercel
+
+# 임시 드라이브 폴더
+.tmp.driveupload/
+.tmp.drivedownload/

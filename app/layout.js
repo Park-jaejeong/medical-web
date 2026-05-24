@@ -14,11 +14,20 @@ export const metadata = {
   keywords: "의료, 증상, 진료과, AI 의료, 병원 안내",
 };
 
+import { ThemeProvider } from "../components/ThemeProvider";
+
 export default function RootLayout({ children }) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <body className={`${notoSansKr.variable} font-sans antialiased`}>
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
