@@ -540,6 +540,7 @@ export default function Home() {
   const [viewMode, setViewMode] = useState("pc"); // "pc" | "mobile"
   const [symptoms, setSymptoms] = useState("");
   const [suspectedDisease, setSuspectedDisease] = useState("");
+  const [doctorOpinion, setDoctorOpinion] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -741,7 +742,7 @@ export default function Home() {
   };
 
   const handleAnalyze = async () => {
-    if (!symptoms.trim() && !suspectedDisease.trim()) return;
+    if (!symptoms.trim() && !suspectedDisease.trim() && images.length === 0) return;
 
     if (!apiKey.trim()) {
       setShowApiModal(true);
@@ -759,6 +760,7 @@ export default function Home() {
         body: JSON.stringify({ 
           symptoms, 
           suspectedDisease,
+          doctorOpinion,
           apiKey,
           images: images.map(img => ({
             base64: img.base64,
@@ -901,7 +903,7 @@ export default function Home() {
           
           <div className="text-[11.5px] leading-relaxed p-3 border border-cyan-500/30 bg-cyan-500/5 dark:bg-cyan-500/10 text-cyan-800 dark:text-cyan-300 rounded-[var(--radius-sm)] flex gap-2 font-medium">
             <span className="flex-shrink-0">ℹ️</span>
-            <span><strong>안내:</strong> 1번(Symptoms Input) 또는 2번(추정병명) 항목 중 최소 하나는 입력해야 진단 실행이 가능합니다.</span>
+            <span><strong>안내:</strong> 1번(Symptoms Input), 2번(추정병명), 3번(Visual Data) 항목 중 최소 하나는 입력해야 진단 실행이 가능합니다.</span>
           </div>
 
           <div>
@@ -933,6 +935,15 @@ export default function Home() {
             </div>
             <p className="text-[10px] mt-1 text-right" style={{ color: "var(--text-muted)" }}>PRESS CTRL+ENTER TO EXECUTE</p>
             
+            <div className="mt-4 mb-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--text-muted)" }}>Quick Tags</p>
+              <div className="flex flex-wrap gap-1.5">
+                {SYMPTOM_EXAMPLES.map((tag) => (
+                  <button key={tag} className="symptom-tag" onClick={() => handleTagClick(tag)}>{tag}</button>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-6 flex flex-col gap-2">
               <label className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-primary)" }}>
                 2. 추정병명 (선택사항)
@@ -949,20 +960,28 @@ export default function Home() {
           </div>
 
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--text-muted)" }}>Quick Tags</p>
-            <div className="flex flex-wrap gap-1.5">
-              {SYMPTOM_EXAMPLES.map((tag) => (
-                <button key={tag} className="symptom-tag" onClick={() => handleTagClick(tag)}>{tag}</button>
-              ))}
-            </div>
-          </div>
-
-          <div>
              <div className="flex justify-between items-center mb-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
-                Visual Data (Max 5)
+              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-primary)" }}>
+                3. VISUAL DATA (X-RAY, ECG 등 / MAX 5)
               </label>
             </div>
+            <div className="flex flex-wrap gap-2 mb-3 text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
+              <span className="flex items-center gap-1 bg-[var(--bg-card)] px-2 py-1 rounded border border-[var(--border-color)]"><ImageIcon size={12}/> 파일 첨부</span>
+              <span className="flex items-center gap-1 bg-[var(--bg-card)] px-2 py-1 rounded border border-[var(--border-color)]"><Camera size={12}/> 사진 촬영</span>
+              <span className="flex items-center gap-1 text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded border border-cyan-500/20">📸 Ctrl+V 붙여넣기</span>
+            </div>
+            
+            <div className="mb-3">
+              <input
+                type="text"
+                className="symptom-textarea w-full p-3 text-xs"
+                placeholder="영상의학적 소견이나 의사의 사전 의견을 입력하세요. (판독 시 적극 참고)"
+                value={doctorOpinion}
+                onChange={(e) => setDoctorOpinion(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleAnalyze(); }}
+              />
+            </div>
+
             <div className="grid grid-cols-5 gap-2">
               {images.map((img, idx) => (
                 <div key={idx} className="relative group aspect-square border border-[var(--border-color)] bg-[var(--bg-primary)] rounded-[var(--radius-sm)] overflow-hidden">
@@ -979,9 +998,9 @@ export default function Home() {
               {images.length < 5 && (
                 <button 
                   onClick={() => fileInputRef.current?.click()}
-                  className="aspect-square border border-dashed border-[var(--border-color)] flex items-center justify-center hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] text-[var(--text-muted)] transition-colors rounded-[var(--radius-sm)]"
+                  className="aspect-square border border-dashed border-[var(--border-color)] flex flex-col items-center justify-center hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] text-[var(--text-muted)] transition-colors rounded-[var(--radius-sm)] gap-1"
                 >
-                  <Camera size={16} />
+                  <Upload size={16} />
                 </button>
               )}
             </div>
@@ -995,7 +1014,7 @@ export default function Home() {
             <button
               className="btn-primary w-full flex items-center justify-center gap-2 py-4"
               onClick={handleAnalyze}
-              disabled={loading || (!symptoms.trim() && !suspectedDisease.trim())}
+              disabled={loading || (!symptoms.trim() && !suspectedDisease.trim() && images.length === 0)}
             >
               {loading ? (
                 <>
@@ -1051,7 +1070,7 @@ export default function Home() {
                 <div className="shrink-0">
                   <h2 className="text-lg font-bold uppercase tracking-wide">Analysis Report</h2>
                   <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>
-                    {symptoms ? `QUERY: ${symptoms}` : `추정병명 분석 모드: ${suspectedDisease}`}
+                    {symptoms ? `QUERY: ${symptoms}` : (suspectedDisease ? `추정병명 분석 모드: ${suspectedDisease}` : "시각 자료 분석 모드")}
                   </p>
                   {suspectedDisease && (
                     <p className="text-sm font-bold" style={{ color: "var(--accent-secondary)" }}>추정 병명: {suspectedDisease}</p>
@@ -1063,6 +1082,23 @@ export default function Home() {
                   </div>
                 )}
               </div>
+
+              {result.imageAnalysis && (
+                <div className="sharp-card p-4 bg-[var(--bg-card)] border border-[#4caf50]/30 fade-in-up shrink-0"
+                     style={{
+                       background: "linear-gradient(135deg, rgba(76, 175, 80, 0.05), rgba(0, 0, 0, 0))"
+                     }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <ImageIcon size={16} style={{ color: "#4caf50" }} />
+                    <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: "#4caf50" }}>
+                      시각 자료 판독 소견 (결론)
+                    </h3>
+                  </div>
+                  <p className="text-sm font-medium leading-relaxed" style={{ color: "var(--text-primary)" }}>
+                    {result.imageAnalysis}
+                  </p>
+                </div>
+              )}
 
               {result.suspectedDiseaseSymptoms && (
                 <div className="sharp-card p-5 bg-[var(--bg-secondary)] border border-[var(--accent-primary)]/30 fade-in-up result-card-1 shrink-0 relative overflow-hidden"

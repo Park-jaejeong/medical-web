@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request) {
   try {
-    const { symptoms, suspectedDisease, apiKey, images } = await request.json();
+    const { symptoms, suspectedDisease, doctorOpinion, apiKey, images } = await request.json();
 
     // 사용자가 입력한 키 우선, 없으면 서버 환경변수 사용 (fallback)
     const resolvedKey = apiKey?.trim() || process.env.GEMINI_API_KEY;
@@ -20,9 +20,10 @@ export async function POST(request) {
     const hasSymptoms = symptoms && symptoms.trim().length > 0;
     const hasSuspectedDisease = suspectedDisease && suspectedDisease.trim().length > 0;
 
-    if (!hasSymptoms && !hasSuspectedDisease) {
+    const hasImages = images && images.length > 0;
+    if (!hasSymptoms && !hasSuspectedDisease && !hasImages) {
       return NextResponse.json(
-        { error: "증상 또는 추정병명 중 최소 하나 이상을 입력해주세요." },
+        { error: "증상, 추정병명 또는 시각 자료 중 최소 하나 이상을 입력해주세요." },
         { status: 400 }
       );
     }
@@ -41,12 +42,13 @@ ${suspectedDisease ? `의사 추정 병명: "${suspectedDisease}"` : ""}
 ${suspectedDisease ? `- 의사가 추정 병명(${suspectedDisease})을 제공했습니다.
   1) 이 추정 병명의 일반적이고 대표적인 주요 증세 및 의학적 특징들을 'suspectedDiseaseSymptoms' 항목에 2~3문장으로 명확히 서술하십시오.
   2) 환자의 증상들이 해당 추정 병명과 어떻게 연관되는지 'suspectedDiseaseAnalysis' 항목에 상세히 설명하고, 이를 바탕으로 나머지 진료과, 검사, 예상 질환, 치료 방향을 이 추정 병명에 초점을 맞추어 더욱 구체화하세요.` : ""}
-${images && images.length > 0 ? "- 환자가 시각 자료(X-ray, 검사 결과 캡처 등)를 함께 첨부했습니다. 이미지에 나타난 병변, 수치, 소견을 바탕으로 분석을 더 구체화해주세요." : ""}
+${hasImages ? `- 환자가 시각 자료(X-ray, 검사 결과 캡처 등)를 함께 첨부했습니다.${doctorOpinion ? `\n  추가로 의사가 남긴 영상 판독 참고 의견이 있습니다: "${doctorOpinion}"\n  이 의견을 적극 반영하여 시각 자료를 분석하십시오.` : ""}\n  이미지에 나타난 병변, 수치, 소견을 바탕으로 상세한 'imageAnalysis' 판독 소견을 작성해주시고, 이를 바탕으로 나머지 분석을 구체화해주세요.` : ""}
 
 다음 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
 {
 ${suspectedDisease ? `  "suspectedDiseaseSymptoms": "추정 병명(${suspectedDisease})의 일반적인 대표 증세 및 임상 소견에 대한 객관적 설명 (2~3문장 요약)",` : ""}
 ${suspectedDisease ? `  "suspectedDiseaseAnalysis": "추정 병명(${suspectedDisease})과 입력된 환자 증상 간의 연관성 분석 및 종합 소견",` : ""}
+${hasImages ? `  "imageAnalysis": "첨부된 시각 자료(사진)에 대한 구체적인 판독 소견 및 결론 (3~4문장 요약)",` : ""}
   "departments": [
     {
       "name": "진료과명",
