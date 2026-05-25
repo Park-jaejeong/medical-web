@@ -552,6 +552,7 @@ export default function Home() {
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
   const originalSymptomsRef = useRef(""); // 마이크 시작 시 기존 텍스트 백업용
 
   // 리사이즈 관련 상태
@@ -972,8 +973,8 @@ export default function Home() {
               </label>
             </div>
             <div className="flex flex-wrap gap-2 mb-3 text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
-              <span className="flex items-center gap-1 bg-[var(--bg-card)] px-2 py-1 rounded border border-[var(--border-color)]"><ImageIcon size={12}/> 파일 첨부</span>
-              <span className="flex items-center gap-1 bg-[var(--bg-card)] px-2 py-1 rounded border border-[var(--border-color)]"><Camera size={12}/> 사진 촬영</span>
+              <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1 bg-[var(--bg-card)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors px-2 py-1 rounded border border-[var(--border-color)] cursor-pointer"><ImageIcon size={12}/> 파일 첨부</button>
+              <button onClick={() => cameraInputRef.current?.click()} className="flex items-center gap-1 bg-[var(--bg-card)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors px-2 py-1 rounded border border-[var(--border-color)] cursor-pointer"><Camera size={12}/> 사진 촬영</button>
               <span className="flex items-center gap-1 text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded border border-cyan-500/20">📸 Ctrl+V 붙여넣기</span>
             </div>
             
@@ -1012,6 +1013,10 @@ export default function Home() {
             </div>
             <input 
               ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" 
+              onChange={handleImageChange}
+            />
+            <input 
+              ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" 
               onChange={handleImageChange}
             />
           </div>
