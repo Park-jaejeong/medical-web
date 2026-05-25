@@ -703,17 +703,18 @@ export default function Home() {
       recognition.continuous = true;
 
       recognition.onresult = (event) => {
-        let transcript = "";
+        let newTranscript = "";
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            newTranscript += event.results[i][0].transcript;
+          }
         }
         
-        // 실시간으로 기존 증상에 추가 (마지막 부분만 업데이트하는 방식은 복잡하므로 단순 추가)
-        if (event.results[event.results.length - 1].isFinal) {
+        if (newTranscript) {
           setSymptoms(prev => {
             const lastChar = prev.trim().slice(-1);
             const separator = (prev.trim() && lastChar !== "." && lastChar !== "?" && lastChar !== "!") ? ". " : " ";
-            return prev.trim() + (prev ? separator : "") + transcript.trim();
+            return prev.trim() + (prev ? separator : "") + newTranscript.trim();
           });
         }
       };
