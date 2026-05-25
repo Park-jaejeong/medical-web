@@ -552,6 +552,7 @@ export default function Home() {
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
   const fileInputRef = useRef(null);
+  const originalSymptomsRef = useRef(""); // 마이크 시작 시 기존 텍스트 백업용
 
   // 리사이즈 관련 상태
   const [leftWidth, setLeftWidth] = useState(35);
@@ -690,6 +691,9 @@ export default function Home() {
       return;
     }
 
+    // 마이크 켜기 전, 현재 입력된 텍스트를 백업해둠
+    originalSymptomsRef.current = symptoms;
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("이 브라우저는 음성 인식을 지원하지 않습니다.");
@@ -703,19 +707,20 @@ export default function Home() {
       recognition.continuous = true;
 
       recognition.onresult = (event) => {
-        let newTranscript = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            newTranscript += event.results[i][0].transcript;
-          }
+        // Web Speech API 버그(중복 누적) 방지를 위해:
+        // 항상 event.results 전체(0번 인덱스부터)를 순회해서 이번 세션의 '전체 인식 결과'를 만듦
+        let currentTranscript = "";
+        for (let i = 0; i < event.results.length; i++) {
+          currentTranscript += event.results[i][0].transcript;
         }
         
-        if (newTranscript) {
-          setSymptoms(prev => {
-            const lastChar = prev.trim().slice(-1);
-            const separator = (prev.trim() && lastChar !== "." && lastChar !== "?" && lastChar !== "!") ? ". " : " ";
-            return prev.trim() + (prev ? separator : "") + newTranscript.trim();
-          });
+        // 기존 텍스트(마이크 켜기 전 백업본) + 이번 세션의 전체 결과 텍스트로 덮어쓰기
+        if (currentTranscript) {
+          const prev = originalSymptomsRef.current;
+          const lastChar = prev.trim().slice(-1);
+          const separator = (prev.trim() && lastChar !== "." && lastChar !== "?" && lastChar !== "!") ? ". " : " ";
+          
+          setSymptoms(prev.trim() + (prev ? separator : "") + currentTranscript.trim());
         }
       };
 
